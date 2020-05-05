@@ -2,14 +2,14 @@ CREATE SCHEMA IF NOT EXISTS `documents_api` DEFAULT CHARACTER SET utf8;
 USE `documents_api`;
 
 CREATE TABLE IF NOT EXISTS `documents_api`.`users` (
-  `id`         VARCHAR(255) NOT NULL,
+  `id`         BIGINT(20)   UNSIGNED NOT NULL AUTO_INCREMENT,
   `username`   VARCHAR(255) NOT NULL UNIQUE,
   `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`))
 ENGINE = InnoDB;
 
 CREATE TABLE IF NOT EXISTS `documents_api`.`user_auths` (
-  `user_id`         VARCHAR(255) NOT NULL,
+  `user_id`         BIGINT(20)   UNSIGNED NOT NULL,
   `email`           VARCHAR(255) NOT NULL UNIQUE,
   `hash`            VARCHAR(255) NOT NULL,
   `updated_at`      DATETIME     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -24,8 +24,8 @@ CREATE TABLE IF NOT EXISTS `documents_api`.`user_auths` (
 ENGINE = InnoDB;
 
 CREATE TABLE IF NOT EXISTS `documents_api`.`auth_tokens` (
-  `id`              VARCHAR(255) NOT NULL,
-  `user_id`         VARCHAR(255) NOT NULL,
+  `id`              BIGINT(20)   UNSIGNED NOT NULL AUTO_INCREMENT,
+  `user_id`         BIGINT(20)   UNSIGNED NOT NULL,
   `token`           VARCHAR(255) NOT NULL,
   `expiry`          DATETIME,
   `created_at`      DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -41,7 +41,7 @@ ENGINE = InnoDB;
 CREATE TABLE IF NOT EXISTS `documents_api`.`documents` (
   `id`              BIGINT(20)   UNSIGNED NOT NULL AUTO_INCREMENT,
   `url`             VARCHAR(255) NOT NULL,
-  `user_id`         VARCHAR(255) NOT NULL,
+  `user_id`         BIGINT(20)   UNSIGNED NOT NULL,
   `updated_at`      DATETIME     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `created_at`      DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
