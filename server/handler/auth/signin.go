@@ -8,6 +8,7 @@ import (
 	"github.com/nepp-tumsat/documents-api/infrastructure"
 	"github.com/nepp-tumsat/documents-api/infrastructure/persistence"
 	"github.com/nepp-tumsat/documents-api/server/response"
+	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/xerrors"
 )
 
@@ -30,8 +31,20 @@ func HandleAuthSignIn() http.HandlerFunc {
 			return
 		}
 
+		err = passwordVerify(requestBody.Password, hash)
+		if err != nil {
+			log.Printf("%+v\n", xerrors.Errorf("Error in request: %v", err))
+			response.BadRequest(writer, "Can't verify of password")
+			return
+		}
+
 		response.Success(writer, hash)
 	}
+
+}
+
+func passwordVerify(password, hash string) error {
+	return bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 }
 
 type authSignInRequest struct {
