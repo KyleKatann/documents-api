@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS `documents_api`.`user_auths` (
   `updated_at`      DATETIME     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `created_at`      DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`user_id`),
-  CONSTRAINT `fk_user_auths_id`
+  CONSTRAINT `fk_user_auths_user_id`
     FOREIGN KEY (`user_id`)
     REFERENCES `documents_api`.`users` (`id`)
     ON DELETE NO ACTION
@@ -30,7 +30,22 @@ CREATE TABLE IF NOT EXISTS `documents_api`.`auth_tokens` (
   `expiry`          DATETIME,
   `created_at`      DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  CONSTRAINT `fk_auth_tokens_id`
+  CONSTRAINT `fk_auth_tokens_user_id`
+    FOREIGN KEY (`user_id`)
+    REFERENCES `documents_api`.`users` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+)
+ENGINE = InnoDB;
+
+CREATE TABLE IF NOT EXISTS `documents_api`.`documents` (
+  `id`              VARCHAR(255) NOT NULL,
+  `url`             VARCHAR(255) NOT NULL,
+  `user_id`         VARCHAR(255) NOT NULL,
+  `updated_at`      DATETIME     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `created_at`      DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  CONSTRAINT `fk_documents_user_id`
     FOREIGN KEY (`user_id`)
     REFERENCES `documents_api`.`users` (`id`)
     ON DELETE NO ACTION
