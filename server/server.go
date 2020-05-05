@@ -12,7 +12,7 @@ import (
 func Serve(addr string) {
 	http.HandleFunc("/auth/signup", post(authHandler.HandleAuthSignUp()))
 	http.HandleFunc("/auth/signin", post(authHandler.HandleAuthSignIn()))
-	http.HandleFunc("/auth/signout", delete(authHandler.HandleAuthSignOut()))
+	http.HandleFunc("/auth/signout", delete(middleware.Authenticate(authHandler.HandleAuthSignOut())))
 	http.HandleFunc("/users", get(middleware.Authenticate(userHandler.HandleUserList())))
 
 	log.Println("Server running...")
