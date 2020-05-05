@@ -4,10 +4,12 @@ import (
 	"log"
 	"net/http"
 
+	authHandler "github.com/nepp-tumsat/documents-api/server/handler/auth"
 	userHandler "github.com/nepp-tumsat/documents-api/server/handler/user"
 )
 
 func Serve(addr string) {
+	http.HandleFunc("/auth/signup", post(authHandler.HandleAuthSignUp()))
 	http.HandleFunc("/users", get(userHandler.HandleUserList()))
 
 	log.Println("Server running...")
