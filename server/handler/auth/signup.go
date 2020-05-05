@@ -10,6 +10,7 @@ import (
 	"github.com/nepp-tumsat/documents-api/infrastructure"
 	"github.com/nepp-tumsat/documents-api/infrastructure/persistence"
 	"github.com/nepp-tumsat/documents-api/server/response"
+	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/xerrors"
 )
 
@@ -38,7 +39,13 @@ func HandleAuthSignUp() http.HandlerFunc {
 			return
 		}
 
-		err = authRepo.InsertToUserAuths(userID.String(), requestBody.Email, requestBody.Password)
+		hash, err := passwordToHash(requestBody.Password)
+		if err != nil {
+			err = xerrors.Errorf("Error in bcrypt: %v", err)
+			return
+		}
+
+		err = authRepo.InsertToUserAuths(userID.String(), requestBody.Email, hash)
 		if err != nil {
 			err = xerrors.Errorf("Error in repository: %v", err)
 			return
@@ -46,6 +53,12 @@ func HandleAuthSignUp() http.HandlerFunc {
 
 		response.Success(writer, "")
 	}
+}
+
+func passwordToHash(password string) (string, error) {
+	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+
+	return string(hash), err
 }
 
 type authSignUpRequest struct {
