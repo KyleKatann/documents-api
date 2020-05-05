@@ -5,6 +5,8 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/nepp-tumsat/documents-api/infrastructure"
+	"github.com/nepp-tumsat/documents-api/infrastructure/persistence"
 	"github.com/nepp-tumsat/documents-api/server/response"
 	"golang.org/x/xerrors"
 )
@@ -20,7 +22,15 @@ func HandleAuthSignIn() http.HandlerFunc {
 			return
 		}
 
-		response.Success(writer, requestBody)
+		authRepo := persistence.NewAuthDB(infrastructure.DB)
+
+		hash, err := authRepo.SelectHashByEmail(requestBody.Email)
+		if err != nil {
+			log.Printf("%+v\n", xerrors.Errorf("Error in repository: %v", err))
+			return
+		}
+
+		response.Success(writer, hash)
 	}
 }
 

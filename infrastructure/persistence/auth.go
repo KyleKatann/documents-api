@@ -10,6 +10,7 @@ type AuthRepository interface {
 	InsertToUsers(string, string) error
 	InsertToUserAuths(string, string, string) error
 	InsertToAuthTokens(string, string, string) error
+	SelectHashByEmail(string) (string, error)
 }
 
 type authRepository struct {
