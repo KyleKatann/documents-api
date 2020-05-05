@@ -32,9 +32,11 @@ func HandleAuthSignUp() http.HandlerFunc {
 
 		authRepo := persistence.NewAuthDB(infrastructure.DB)
 
-		log.Println(authRepo)
-
 		err = authRepo.InsertToUsers(userID.String(), requestBody.UserName)
+		if err != nil {
+			err = xerrors.Errorf("Error in repository: %v", err)
+			return
+		}
 
 		response.Success(writer, "")
 	}
