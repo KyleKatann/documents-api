@@ -8,7 +8,7 @@ import (
 )
 
 type AuthRepository interface {
-	InsertToUsers(string) error
+	InsertUser(model.User) error
 	InsertToUserAuths(uint64, string, string) error
 	InsertToAuthTokens(uint64, string) error
 	SelectUserIDByUserName(string) (uint64, error)
@@ -26,7 +26,7 @@ func NewAuthDB(db *sql.DB) AuthRepository {
 	return &authRepository{db: db}
 }
 
-func (a *authRepository) InsertToUsers(userName string) error {
+func (a *authRepository) InsertUser(user model.User) error {
 	stmt, err := a.db.Prepare(`
 		INSERT INTO
 			users(
@@ -39,7 +39,7 @@ func (a *authRepository) InsertToUsers(userName string) error {
 		return err
 	}
 
-	_, err = stmt.Exec(userName)
+	_, err = stmt.Exec(user.UserName)
 	if err != nil {
 		err = xerrors.Errorf("Error in sql.DB: %v", err)
 		return err
