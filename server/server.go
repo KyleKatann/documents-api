@@ -12,6 +12,7 @@ import (
 func Serve(addr string) {
 	http.HandleFunc("/auth/signup", post(authHandler.HandleAuthSignUp()))
 	http.HandleFunc("/auth/signin", post(authHandler.HandleAuthSignIn()))
+	http.HandleFunc("/auth/signout", delete(authHandler.HandleAuthSignOut()))
 	http.HandleFunc("/users", get(middleware.Authenticate(userHandler.HandleUserList())))
 
 	log.Println("Server running...")
@@ -27,6 +28,10 @@ func get(apiFunc http.HandlerFunc) http.HandlerFunc {
 
 func post(apiFunc http.HandlerFunc) http.HandlerFunc {
 	return httpMethod(apiFunc, http.MethodPost)
+}
+
+func delete(apiFunc http.HandlerFunc) http.HandlerFunc {
+	return httpMethod(apiFunc, http.MethodDelete)
 }
 
 func httpMethod(apiFunc http.HandlerFunc, method string) http.HandlerFunc {
