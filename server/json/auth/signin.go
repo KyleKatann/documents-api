@@ -1,12 +1,11 @@
-package reads
+package auth
 
 type AuthSignInRequest struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
 }
 
-type AuthSignUpRequest struct {
+type AuthSignInResponse struct {
 	UserName string `json:"username"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	Token    string `json:"token"`
 }

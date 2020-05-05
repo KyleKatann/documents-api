@@ -9,8 +9,7 @@ import (
 
 	"github.com/nepp-tumsat/documents-api/infrastructure"
 	"github.com/nepp-tumsat/documents-api/infrastructure/persistence"
-	"github.com/nepp-tumsat/documents-api/server/json/reads"
-	"github.com/nepp-tumsat/documents-api/server/json/writes"
+	authJson "github.com/nepp-tumsat/documents-api/server/json"
 	"github.com/nepp-tumsat/documents-api/server/response"
 	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/xerrors"
@@ -19,7 +18,7 @@ import (
 func HandleAuthSignUp() http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
 
-		var requestBody reads.AuthSignUpRequest
+		var requestBody authJson.AuthSignUpRequest
 		err := json.NewDecoder(request.Body).Decode(&requestBody)
 		if err != nil {
 			log.Printf("%+v\n", xerrors.Errorf("Error in json: %v", err))
@@ -65,7 +64,7 @@ func HandleAuthSignUp() http.HandlerFunc {
 			return
 		}
 
-		response.Success(writer, writes.AuthSignUpResponse{UserName: requestBody.UserName, Token: token.String()})
+		response.Success(writer, authJson.AuthSignUpResponse{UserName: requestBody.UserName, Token: token.String()})
 	}
 }
 
