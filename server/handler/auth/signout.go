@@ -4,7 +4,8 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/nepp-tumsat/documents-api/dcontext"
+	"github.com/nepp-tumsat/documents-api/infrastructure"
+	"github.com/nepp-tumsat/documents-api/infrastructure/persistence"
 	"github.com/nepp-tumsat/documents-api/server/response"
 	"golang.org/x/xerrors"
 )
@@ -12,14 +13,16 @@ import (
 func HandleAuthSignOut() http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
 
-		ctx := request.Context()
-		userID := dcontext.GetUserIDFromContext(ctx)
-		if len(userID) == 0 {
-			log.Printf("%+v\n", xerrors.New("Error in dcontext"))
-			response.InternalServerError(writer, "Can't get userID")
+		token := request.Header.Get("Authorization")
+
+		authRepo := persistence.NewAuthDB(infrastructure.DB)
+
+		err := authRepo.DeleteAuthTokenByToken(token)
+		if err != nil {
+			log.Printf("%+v\n", xerrors.Errorf("Error in repository: %v", err))
 			return
 		}
 
-		response.Success(writer, userID)
+		response.Success(writer, "")
 	}
 }
