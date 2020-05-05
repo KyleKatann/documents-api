@@ -9,6 +9,8 @@ import (
 
 	"github.com/nepp-tumsat/documents-api/infrastructure"
 	"github.com/nepp-tumsat/documents-api/infrastructure/persistence"
+	"github.com/nepp-tumsat/documents-api/server/json/reads"
+	"github.com/nepp-tumsat/documents-api/server/json/writes"
 	"github.com/nepp-tumsat/documents-api/server/response"
 	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/xerrors"
@@ -17,7 +19,7 @@ import (
 func HandleAuthSignUp() http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
 
-		var requestBody authSignUpRequest
+		var requestBody reads.AuthSignUpRequest
 		err := json.NewDecoder(request.Body).Decode(&requestBody)
 		if err != nil {
 			log.Printf("%+v\n", xerrors.Errorf("Error in json: %v", err))
@@ -63,7 +65,7 @@ func HandleAuthSignUp() http.HandlerFunc {
 			return
 		}
 
-		response.Success(writer, authSignUpResponse{UserName: requestBody.UserName, Token: token.String()})
+		response.Success(writer, writes.AuthSignUpResponse{UserName: requestBody.UserName, Token: token.String()})
 	}
 }
 
@@ -71,15 +73,4 @@ func passwordToHash(password string) (string, error) {
 	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 
 	return string(hash), err
-}
-
-type authSignUpRequest struct {
-	UserName string `json:"username"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
-}
-
-type authSignUpResponse struct {
-	UserName string `json:"username"`
-	Token    string `json:"token"`
 }
