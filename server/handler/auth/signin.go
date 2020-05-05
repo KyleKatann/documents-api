@@ -53,13 +53,13 @@ func HandleAuthSignIn() http.HandlerFunc {
 			return
 		}
 
-		userName, err := authRepo.SelectUserNameByUserID(userAuth.UserID)
+		user, err := authRepo.SelectUserByUserID(userAuth.UserID)
 		if err != nil {
 			log.Printf("%+v\n", xerrors.Errorf("Error in repository: %v", err))
 			return
 		}
 
-		response.Success(writer, authJson.AuthSignInResponse{UserName: userName, Token: token.String()})
+		response.Success(writer, authJson.AuthSignInResponse{UserName: user.UserName, Token: token.String()})
 	}
 
 }
