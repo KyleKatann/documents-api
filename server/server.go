@@ -1,13 +1,20 @@
 package server
 
 import (
+	"log"
 	"net/http"
 
-	userHandler "github.com/nepp-tumsat/server/handler/user"
+	userHandler "github.com/nepp-tumsat/documents-api/server/handler/user"
 )
 
 func Serve(addr string) {
 	http.HandleFunc("/users", get(userHandler.HandleUserList()))
+
+	log.Println("Server running...")
+	err := http.ListenAndServe(addr, nil)
+	if err != nil {
+		log.Printf("Listen and serve failed. %+v", err)
+	}
 }
 
 func get(apiFunc http.HandlerFunc) http.HandlerFunc {
