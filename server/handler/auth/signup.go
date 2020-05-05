@@ -59,7 +59,7 @@ func HandleAuthSignUp() http.HandlerFunc {
 			return
 		}
 
-		err = authRepo.InsertToAuthTokens(userID, token.String())
+		err = authRepo.InsertAuthToken(model.AuthToken{UserID: userID, Token: token.String()})
 		if err != nil {
 			log.Printf("%+v\n", xerrors.Errorf("Error in repository: %v", err))
 			return

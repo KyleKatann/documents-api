@@ -7,6 +7,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/nepp-tumsat/documents-api/infrastructure"
+	"github.com/nepp-tumsat/documents-api/infrastructure/model"
 	"github.com/nepp-tumsat/documents-api/infrastructure/persistence"
 	authJson "github.com/nepp-tumsat/documents-api/server/json/auth"
 	"github.com/nepp-tumsat/documents-api/server/response"
@@ -46,7 +47,7 @@ func HandleAuthSignIn() http.HandlerFunc {
 			return
 		}
 
-		err = authRepo.InsertToAuthTokens(userAuth.UserID, token.String())
+		err = authRepo.InsertAuthToken(model.AuthToken{UserID: userAuth.UserID, Token: token.String()})
 		if err != nil {
 			log.Printf("%+v\n", xerrors.Errorf("Error in repository: %v", err))
 			return
