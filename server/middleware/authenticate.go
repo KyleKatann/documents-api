@@ -32,7 +32,7 @@ func Authenticate(nextFunc http.HandlerFunc) http.HandlerFunc {
 		authRepo := persistence.NewAuthDB(infrastructure.DB)
 
 		// データベースから認証トークンに紐づくユーザの情報を取得
-		userID, err := authRepo.SelectUserIDByToken(token)
+		authToken, err := authRepo.SelectAuthTokenByToken(token)
 		if err != nil {
 			log.Printf("%+v\n", xerrors.Errorf("Error in repository: %v", err))
 			response.Unauthorized(writer, "Invalid token")
@@ -40,7 +40,7 @@ func Authenticate(nextFunc http.HandlerFunc) http.HandlerFunc {
 		}
 
 		// userIdをContextへ保存して以降の処理に利用する
-		ctx = dcontext.SetUserID(ctx, userID)
+		ctx = dcontext.SetUserID(ctx, string(authToken.UserID))
 
 		// 次の処理
 		nextFunc(writer, request.WithContext(ctx))

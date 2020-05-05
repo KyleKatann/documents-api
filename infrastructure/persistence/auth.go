@@ -14,7 +14,7 @@ type AuthRepository interface {
 	SelectUserByUserID(uint64) (*model.User, error)
 	SelectUserByUserName(string) (*model.User, error)
 	SelectUserAuthByEmail(string) (*model.UserAuth, error)
-	SelectUserIDByToken(string) (string, error)
+	SelectAuthTokenByToken(string) (*model.AuthToken, error)
 	DeleteAuthTokenByToken(string) error
 }
 
@@ -152,23 +152,24 @@ func (a *authRepository) SelectUserAuthByEmail(email string) (*model.UserAuth, e
 	return &userAuth, nil
 }
 
-func (a *authRepository) SelectUserIDByToken(token string) (string, error) {
+func (a *authRepository) SelectAuthTokenByToken(token string) (*model.AuthToken, error) {
 	row := a.db.QueryRow(`
 		SELECT
-		  user_id
+		  user_id,
+			token
 		FROM
 		  auth_tokens
 		WHERE
 		  token=?;
 	`, token)
 
-	var userID string
-	err := row.Scan(&userID)
+	var authToken model.AuthToken
+	err := row.Scan(&authToken.UserID, &authToken.Token)
 	if err != nil {
 		err = xerrors.Errorf("Error in sql.DB: %v", err)
-		return "", err
+		return nil, err
 	}
-	return userID, nil
+	return &authToken, nil
 }
 
 func (a *authRepository) DeleteAuthTokenByToken(token string) error {
