@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS `documents_api`.`auth_tokens` (
   `token`           VARCHAR(255) NOT NULL,
   `expiry`          DATETIME,
   `created_at`      DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`user_id`),
+  PRIMARY KEY (`id`),
   CONSTRAINT `fk_auth_tokens_id`
     FOREIGN KEY (`user_id`)
     REFERENCES `documents_api`.`users` (`id`)
