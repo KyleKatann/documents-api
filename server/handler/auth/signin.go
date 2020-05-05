@@ -57,7 +57,13 @@ func HandleAuthSignIn() http.HandlerFunc {
 			return
 		}
 
-		response.Success(writer, authSignInResponse{UserName: "username", Token: token.String()})
+		userName, err := authRepo.SelectUserNameByUserID(userAuth.UserID)
+		if err != nil {
+			log.Printf("%+v\n", xerrors.Errorf("Error in repository: %v", err))
+			return
+		}
+
+		response.Success(writer, authSignInResponse{UserName: userName, Token: token.String()})
 	}
 
 }
