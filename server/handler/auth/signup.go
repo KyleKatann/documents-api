@@ -36,7 +36,7 @@ func HandleAuthSignUp() http.HandlerFunc {
 
 		err = authRepo.InsertToUsers(userID.String(), requestBody.UserName)
 
-		response.Success(writer, requestBody.Email)
+		response.Success(writer, "")
 	}
 }
 
