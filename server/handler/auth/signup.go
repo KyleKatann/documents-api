@@ -65,7 +65,7 @@ func HandleAuthSignUp() http.HandlerFunc {
 			return
 		}
 
-		response.Success(writer, authJson.AuthSignUpResponse{UserName: requestBody.UserName, Token: token.String()})
+		response.Success(writer, authJson.AuthSignUpResponse{UserName: user.UserName, Token: token.String()})
 	}
 }
 
