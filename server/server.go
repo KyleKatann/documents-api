@@ -6,12 +6,13 @@ import (
 
 	authHandler "github.com/nepp-tumsat/documents-api/server/handler/auth"
 	userHandler "github.com/nepp-tumsat/documents-api/server/handler/user"
+	"github.com/nepp-tumsat/documents-api/server/middleware"
 )
 
 func Serve(addr string) {
 	http.HandleFunc("/auth/signup", post(authHandler.HandleAuthSignUp()))
 	http.HandleFunc("/auth/signin", post(authHandler.HandleAuthSignIn()))
-	http.HandleFunc("/users", get(userHandler.HandleUserList()))
+	http.HandleFunc("/users", get(middleware.Authenticate(userHandler.HandleUserList())))
 
 	log.Println("Server running...")
 	err := http.ListenAndServe(addr, nil)
