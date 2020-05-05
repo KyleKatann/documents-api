@@ -35,7 +35,7 @@ func HandleAuthSignUp() http.HandlerFunc {
 			return
 		}
 
-		userID, err := authRepo.SelectUserIDByUserName(requestBody.UserName)
+		user, err := authRepo.SelectUserByUserName(requestBody.UserName)
 		if err != nil {
 			log.Printf("%+v\n", xerrors.Errorf("Error in repository: %v", err))
 			return
@@ -47,7 +47,7 @@ func HandleAuthSignUp() http.HandlerFunc {
 			return
 		}
 
-		err = authRepo.InsertUserAuth(model.UserAuth{UserID: userID, Email: requestBody.Email, Hash: hash})
+		err = authRepo.InsertUserAuth(model.UserAuth{UserID: user.UserID, Email: requestBody.Email, Hash: hash})
 		if err != nil {
 			log.Printf("%+v\n", xerrors.Errorf("Error in repository: %v", err))
 			return
@@ -59,7 +59,7 @@ func HandleAuthSignUp() http.HandlerFunc {
 			return
 		}
 
-		err = authRepo.InsertAuthToken(model.AuthToken{UserID: userID, Token: token.String()})
+		err = authRepo.InsertAuthToken(model.AuthToken{UserID: user.UserID, Token: token.String()})
 		if err != nil {
 			log.Printf("%+v\n", xerrors.Errorf("Error in repository: %v", err))
 			return

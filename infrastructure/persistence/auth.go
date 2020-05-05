@@ -11,7 +11,7 @@ type AuthRepository interface {
 	InsertUser(model.User) error
 	InsertUserAuth(model.UserAuth) error
 	InsertAuthToken(model.AuthToken) error
-	SelectUserIDByUserName(string) (uint64, error)
+	SelectUserByUserName(string) (*model.User, error)
 	SelectUserAuthByEmail(string) (*model.UserAuth, error)
 	SelectUserNameByUserID(uint64) (string, error)
 	SelectUserIDByToken(string) (string, error)
@@ -92,23 +92,24 @@ func (a *authRepository) InsertAuthToken(authToken model.AuthToken) error {
 	return nil
 }
 
-func (a *authRepository) SelectUserIDByUserName(userName string) (uint64, error) {
+func (a *authRepository) SelectUserByUserName(userName string) (*model.User, error) {
 	row := a.db.QueryRow(`
 		SELECT
-		  id
+		  id,
+			username
 		FROM
 		  users
 		WHERE
 		  username=?;
 	`, userName)
 
-	var userID uint64
-	err := row.Scan(&userID)
+	var user model.User
+	err := row.Scan(&user.UserID, &user.UserName)
 	if err != nil {
 		err = xerrors.Errorf("Error in sql.DB: %v", err)
-		return 0, err
+		return nil, err
 	}
-	return userID, nil
+	return &user, nil
 }
 
 func (a *authRepository) SelectUserAuthByEmail(email string) (*model.UserAuth, error) {
