@@ -27,7 +27,7 @@ func HandleAuthSignUp() http.HandlerFunc {
 
 		userID, err := uuid.NewRandom()
 		if err != nil {
-			err = xerrors.Errorf("Error in uuid: %v", err)
+			log.Printf("%+v\n", xerrors.Errorf("Error in uuid: %v", err))
 			return
 		}
 
@@ -35,19 +35,25 @@ func HandleAuthSignUp() http.HandlerFunc {
 
 		err = authRepo.InsertToUsers(userID.String(), requestBody.UserName)
 		if err != nil {
-			err = xerrors.Errorf("Error in repository: %v", err)
+			log.Printf("%+v\n", xerrors.Errorf("Error in repository: %v", err))
 			return
 		}
 
 		hash, err := passwordToHash(requestBody.Password)
 		if err != nil {
-			err = xerrors.Errorf("Error in bcrypt: %v", err)
+			log.Printf("%+v\n", xerrors.Errorf("Error in bcrypt: %v", err))
 			return
 		}
 
 		err = authRepo.InsertToUserAuths(userID.String(), requestBody.Email, hash)
 		if err != nil {
-			err = xerrors.Errorf("Error in repository: %v", err)
+			log.Printf("%+v\n", xerrors.Errorf("Error in repository: %v", err))
+			return
+		}
+
+		token, err := uuid.NewRandom()
+		if err != nil {
+			log.Printf("%+v\n", xerrors.Errorf("Error in uuid: %v", err))
 			return
 		}
 
