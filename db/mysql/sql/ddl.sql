@@ -39,7 +39,7 @@ CREATE TABLE IF NOT EXISTS `documents_api`.`auth_tokens` (
 ENGINE = InnoDB;
 
 CREATE TABLE IF NOT EXISTS `documents_api`.`documents` (
-  `id`              VARCHAR(255) NOT NULL,
+  `id`              BIGINT(20)   UNSIGNED NOT NULL AUTO_INCREMENT,
   `url`             VARCHAR(255) NOT NULL,
   `user_id`         VARCHAR(255) NOT NULL,
   `updated_at`      DATETIME     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

@@ -4,7 +4,7 @@ INSERT INTO user_auths(user_id,email,hash) VALUES ("user1","yaga@example.com","$
 
 INSERT INTO auth_tokens(id,user_id,token,expiry) VALUES ("auth_token1","user1","token","2020-05-02 21:00:00");
 
-INSERT INTO documents(id,url,user_id) VALUES
-("document1","https://go-tour-jp.appspot.com/welcome/1","user1"),
-("document2","https://soudai.hatenablog.com/entry/2018/05/01/204442","user1"),
-("document3","https://angular.jp/tutorial","user1");
+INSERT INTO documents(url,user_id) VALUES
+("https://go-tour-jp.appspot.com/welcome/1","user1"),
+("https://soudai.hatenablog.com/entry/2018/05/01/204442","user1"),
+("https://angular.jp/tutorial","user1");
