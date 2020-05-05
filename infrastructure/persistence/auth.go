@@ -14,6 +14,7 @@ type AuthRepository interface {
 	SelectUserAuthByEmail(string) (*model.UserAuth, error)
 	SelectUserNameByUserID(string) (string, error)
 	SelectUserIDByToken(string) (string, error)
+	DeleteAuthTokenByToken(string) error
 }
 
 type authRepository struct {
@@ -98,8 +99,10 @@ func (a *authRepository) SelectUserAuthByEmail(email string) (*model.UserAuth, e
 		  user_id,
 			email,
 			hash
-		FROM user_auths
-		WHERE email=?;
+		FROM
+		  user_auths
+		WHERE
+		  email=?;
 	`, email)
 
 	var userAuth model.UserAuth
@@ -115,8 +118,10 @@ func (a *authRepository) SelectUserNameByUserID(userID string) (string, error) {
 	row := a.db.QueryRow(`
 		SELECT
 		  username
-		FROM users
-		WHERE id=?;
+		FROM
+		  users
+		WHERE
+		  id=?;
 	`, userID)
 
 	var username string
@@ -132,8 +137,10 @@ func (a *authRepository) SelectUserIDByToken(token string) (string, error) {
 	row := a.db.QueryRow(`
 		SELECT
 		  user_id
-		FROM auth_tokens
-		WHERE token=?;
+		FROM
+		  auth_tokens
+		WHERE
+		  token=?;
 	`, token)
 
 	var userID string
@@ -143,4 +150,24 @@ func (a *authRepository) SelectUserIDByToken(token string) (string, error) {
 		return "", err
 	}
 	return userID, nil
+}
+
+func (a *authRepository) DeleteAuthTokenByToken(token string) error {
+	stmt, err := a.db.Prepare(`
+		DELETE FROM
+		  auth_tokens
+		WHERE
+			token=?;
+		`)
+	if err != nil {
+		err = xerrors.Errorf("Error in sql.DB: %v", err)
+		return err
+	}
+
+	_, err = stmt.Exec(token)
+	if err != nil {
+		err = xerrors.Errorf("Error in sql.DB: %v", err)
+		return err
+	}
+	return nil
 }
