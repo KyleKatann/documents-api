@@ -14,7 +14,7 @@ func init() {
 	dbHost := "localhost"
 	dbUser := "user"
 	dbPassword := "password"
-	dbName := "documents-api"
+	dbName := "documents_api"
 
 	dataSourceName := fmt.Sprintf("%s:%s@tcp(%s)/%s", dbUser, dbPassword, dbHost, dbName)
 

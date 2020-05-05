@@ -21,8 +21,7 @@ func NewUserDB(db *sql.DB) UserRepository {
 
 func (u *userRepository) SelectAll() ([]model.User, error) {
 	rows, err := u.db.Query(`
-    SELECT username
-		FROM users;
+    SELECT username FROM users;
 	`)
 
 	if err != nil {
