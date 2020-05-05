@@ -3,6 +3,7 @@ package persistence
 import (
 	"database/sql"
 
+	"github.com/nepp-tumsat/documents-api/model"
 	"golang.org/x/xerrors"
 )
 
@@ -10,7 +11,7 @@ type AuthRepository interface {
 	InsertToUsers(string, string) error
 	InsertToUserAuths(string, string, string) error
 	InsertToAuthTokens(string, string, string) error
-	SelectHashByEmail(string) (string, error)
+	SelectUserAuthByEmail(string) (*model.UserAuth, error)
 }
 
 type authRepository struct {
@@ -89,19 +90,21 @@ func (a *authRepository) InsertToAuthTokens(authTokenID, userID, token string) e
 	return nil
 }
 
-func (a *authRepository) SelectHashByEmail(email string) (string, error) {
+func (a *authRepository) SelectUserAuthByEmail(email string) (*model.UserAuth, error) {
 	row := a.db.QueryRow(`
 		SELECT
+		  user_id,
+			email,
 			hash
 		FROM user_auths
 		WHERE email=?;
 	`, email)
 
-	var hash string
-	err := row.Scan(&hash)
+	var userAuth model.UserAuth
+	err := row.Scan(&userAuth.UserID, &userAuth.Email, &userAuth.Hash)
 	if err != nil {
 		err = xerrors.Errorf("Error in sql.DB: %v", err)
-		return "", err
+		return nil, err
 	}
-	return hash, nil
+	return &userAuth, nil
 }

@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/google/uuid"
 	"github.com/nepp-tumsat/documents-api/infrastructure"
 	"github.com/nepp-tumsat/documents-api/infrastructure/persistence"
 	"github.com/nepp-tumsat/documents-api/server/response"
@@ -25,20 +26,38 @@ func HandleAuthSignIn() http.HandlerFunc {
 
 		authRepo := persistence.NewAuthDB(infrastructure.DB)
 
-		hash, err := authRepo.SelectHashByEmail(requestBody.Email)
+		userAuth, err := authRepo.SelectUserAuthByEmail(requestBody.Email)
 		if err != nil {
 			log.Printf("%+v\n", xerrors.Errorf("Error in repository: %v", err))
 			return
 		}
 
-		err = passwordVerify(requestBody.Password, hash)
+		err = passwordVerify(requestBody.Password, userAuth.Hash)
 		if err != nil {
 			log.Printf("%+v\n", xerrors.Errorf("Error in request: %v", err))
 			response.BadRequest(writer, "Can't verify of password")
 			return
 		}
 
-		response.Success(writer, hash)
+		authTokenID, err := uuid.NewRandom()
+		if err != nil {
+			log.Printf("%+v\n", xerrors.Errorf("Error in uuid: %v", err))
+			return
+		}
+
+		token, err := uuid.NewRandom()
+		if err != nil {
+			log.Printf("%+v\n", xerrors.Errorf("Error in uuid: %v", err))
+			return
+		}
+
+		err = authRepo.InsertToAuthTokens(authTokenID.String(), userAuth.UserID, token.String())
+		if err != nil {
+			log.Printf("%+v\n", xerrors.Errorf("Error in repository: %v", err))
+			return
+		}
+
+		response.Success(writer, authSignInResponse{UserName: "username", Token: token.String()})
 	}
 
 }
@@ -50,4 +69,9 @@ func passwordVerify(password, hash string) error {
 type authSignInRequest struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
+}
+
+type authSignInResponse struct {
+	UserName string `json:"username"`
+	Token    string `json:"token"`
 }
