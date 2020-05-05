@@ -1,7 +1,7 @@
 package model
 
 type UserAuth struct {
-	UserID string
+	UserID uint64
 	Email  string
 	Hash   string
 }

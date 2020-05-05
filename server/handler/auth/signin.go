@@ -39,19 +39,13 @@ func HandleAuthSignIn() http.HandlerFunc {
 			return
 		}
 
-		authTokenID, err := uuid.NewRandom()
-		if err != nil {
-			log.Printf("%+v\n", xerrors.Errorf("Error in uuid: %v", err))
-			return
-		}
-
 		token, err := uuid.NewRandom()
 		if err != nil {
 			log.Printf("%+v\n", xerrors.Errorf("Error in uuid: %v", err))
 			return
 		}
 
-		err = authRepo.InsertToAuthTokens(authTokenID.String(), userAuth.UserID, token.String())
+		err = authRepo.InsertToAuthTokens(userAuth.UserID, token.String())
 		if err != nil {
 			log.Printf("%+v\n", xerrors.Errorf("Error in repository: %v", err))
 			return

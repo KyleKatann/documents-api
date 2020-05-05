@@ -8,11 +8,12 @@ import (
 )
 
 type AuthRepository interface {
-	InsertToUsers(string, string) error
-	InsertToUserAuths(string, string, string) error
-	InsertToAuthTokens(string, string, string) error
+	InsertToUsers(string) error
+	InsertToUserAuths(uint64, string, string) error
+	InsertToAuthTokens(uint64, string) error
+	SelectUserIDByUserName(string) (uint64, error)
 	SelectUserAuthByEmail(string) (*model.UserAuth, error)
-	SelectUserNameByUserID(string) (string, error)
+	SelectUserNameByUserID(uint64) (string, error)
 	SelectUserIDByToken(string) (string, error)
 	DeleteAuthTokenByToken(string) error
 }
@@ -25,21 +26,20 @@ func NewAuthDB(db *sql.DB) AuthRepository {
 	return &authRepository{db: db}
 }
 
-func (a *authRepository) InsertToUsers(userID, userName string) error {
+func (a *authRepository) InsertToUsers(userName string) error {
 	stmt, err := a.db.Prepare(`
 		INSERT INTO
 			users(
-			  id,
 			  username
 			)
-		VALUES(?,?);
+		VALUES(?);
 	`)
 	if err != nil {
 		err = xerrors.Errorf("Error in sql.DB: %v", err)
 		return err
 	}
 
-	_, err = stmt.Exec(userID, userName)
+	_, err = stmt.Exec(userName)
 	if err != nil {
 		err = xerrors.Errorf("Error in sql.DB: %v", err)
 		return err
@@ -47,7 +47,7 @@ func (a *authRepository) InsertToUsers(userID, userName string) error {
 	return nil
 }
 
-func (a *authRepository) InsertToUserAuths(userID, email, hash string) error {
+func (a *authRepository) InsertToUserAuths(userID uint64, email, hash string) error {
 	stmt, err := a.db.Prepare(`
 		INSERT INTO
 			user_auths(
@@ -70,27 +70,45 @@ func (a *authRepository) InsertToUserAuths(userID, email, hash string) error {
 	return nil
 }
 
-func (a *authRepository) InsertToAuthTokens(authTokenID, userID, token string) error {
+func (a *authRepository) InsertToAuthTokens(userID uint64, token string) error {
 	stmt, err := a.db.Prepare(`
 		INSERT INTO
 			auth_tokens(
-			  id,
 			  user_id,
 				token
 			)
-		VALUES(?,?,?);
+		VALUES(?,?);
 	`)
 	if err != nil {
 		err = xerrors.Errorf("Error in sql.DB: %v", err)
 		return err
 	}
 
-	_, err = stmt.Exec(authTokenID, userID, token)
+	_, err = stmt.Exec(userID, token)
 	if err != nil {
 		err = xerrors.Errorf("Error in sql.DB: %v", err)
 		return err
 	}
 	return nil
+}
+
+func (a *authRepository) SelectUserIDByUserName(userName string) (uint64, error) {
+	row := a.db.QueryRow(`
+		SELECT
+		  id
+		FROM
+		  users
+		WHERE
+		  username=?;
+	`, userName)
+
+	var userID uint64
+	err := row.Scan(&userID)
+	if err != nil {
+		err = xerrors.Errorf("Error in sql.DB: %v", err)
+		return 0, err
+	}
+	return userID, nil
 }
 
 func (a *authRepository) SelectUserAuthByEmail(email string) (*model.UserAuth, error) {
@@ -114,7 +132,7 @@ func (a *authRepository) SelectUserAuthByEmail(email string) (*model.UserAuth, e
 	return &userAuth, nil
 }
 
-func (a *authRepository) SelectUserNameByUserID(userID string) (string, error) {
+func (a *authRepository) SelectUserNameByUserID(userID uint64) (string, error) {
 	row := a.db.QueryRow(`
 		SELECT
 		  username
