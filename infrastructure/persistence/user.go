@@ -3,15 +3,24 @@ package persistence
 import (
 	"database/sql"
 
-	"github.com/nepp-tumsat/documents-api/infrastructure"
 	"github.com/nepp-tumsat/documents-api/model"
 	"golang.org/x/xerrors"
 )
 
-var db *sql.DB = infrastructure.DB
+type UserRepository interface {
+	SelectAll() ([]model.User, error)
+}
 
-func SelectAll() ([]model.User, error) {
-	rows, err := db.Query(`
+type userRepository struct {
+	db *sql.DB
+}
+
+func NewUserDB(db *sql.DB) UserRepository {
+	return &userRepository{db: db}
+}
+
+func (u *userRepository) SelectAll() ([]model.User, error) {
+	rows, err := u.db.Query(`
     SELECT username
 		FROM users;
 	`)
