@@ -5,10 +5,10 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/nepp-tumsat/documents-api/dcontext"
 	"github.com/nepp-tumsat/documents-api/infrastructure"
 	"github.com/nepp-tumsat/documents-api/infrastructure/persistence"
 	"github.com/nepp-tumsat/documents-api/server/response"
+	"github.com/nepp-tumsat/documents-api/util/dcontext"
 	"golang.org/x/xerrors"
 )
 
