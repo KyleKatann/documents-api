@@ -38,6 +38,12 @@ func HandleAuthSignUp() http.HandlerFunc {
 			return
 		}
 
+		err = authRepo.InsertToUserAuths(userID.String(), requestBody.Email, requestBody.Password)
+		if err != nil {
+			err = xerrors.Errorf("Error in repository: %v", err)
+			return
+		}
+
 		response.Success(writer, "")
 	}
 }

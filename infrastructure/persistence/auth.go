@@ -8,6 +8,7 @@ import (
 
 type AuthRepository interface {
 	InsertToUsers(string, string) error
+	InsertToUserAuths(string, string, string) error
 }
 
 type authRepository struct {
@@ -33,6 +34,29 @@ func (a *authRepository) InsertToUsers(userID, userName string) error {
 	}
 
 	_, err = stmt.Exec(userID, userName)
+	if err != nil {
+		err = xerrors.Errorf("Error in sql.DB: %v", err)
+		return err
+	}
+	return nil
+}
+
+func (a *authRepository) InsertToUserAuths(userID, email, hash string) error {
+	stmt, err := a.db.Prepare(`
+		INSERT INTO
+			user_auths(
+			  user_id,
+			  email,
+				hash
+			)
+		VALUES(?,?,?);
+	`)
+	if err != nil {
+		err = xerrors.Errorf("Error in sql.DB: %v", err)
+		return err
+	}
+
+	_, err = stmt.Exec(userID, email, hash)
 	if err != nil {
 		err = xerrors.Errorf("Error in sql.DB: %v", err)
 		return err
