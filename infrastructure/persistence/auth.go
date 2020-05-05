@@ -87,3 +87,20 @@ func (a *authRepository) InsertToAuthTokens(authTokenID, userID, token string) e
 	}
 	return nil
 }
+
+func (a *authRepository) SelectHashByEmail(email string) (string, error) {
+	row := a.db.QueryRow(`
+		SELECT
+			hash
+		FROM user_auths
+		WHERE email=?;
+	`, email)
+
+	var hash string
+	err := row.Scan(&hash)
+	if err != nil {
+		err = xerrors.Errorf("Error in sql.DB: %v", err)
+		return "", err
+	}
+	return hash, nil
+}
