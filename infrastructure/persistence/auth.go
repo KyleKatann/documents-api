@@ -12,6 +12,7 @@ type AuthRepository interface {
 	InsertToUserAuths(string, string, string) error
 	InsertToAuthTokens(string, string, string) error
 	SelectUserAuthByEmail(string) (*model.UserAuth, error)
+	SelectUserNameByUserID(string) (string, error)
 }
 
 type authRepository struct {
@@ -107,4 +108,22 @@ func (a *authRepository) SelectUserAuthByEmail(email string) (*model.UserAuth, e
 		return nil, err
 	}
 	return &userAuth, nil
+}
+
+func (a *authRepository) SelectUserNameByUserID(userID string) (string, error) {
+	row := a.db.QueryRow(`
+		SELECT
+		  username
+		FROM users
+		WHERE id=?;
+	`, userID)
+
+	var username string
+	err := row.Scan(&username)
+	if err != nil {
+		err = xerrors.Errorf("Error in sql.DB: %v", err)
+		return "", err
+	}
+	return username, nil
+
 }
