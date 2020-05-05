@@ -3,7 +3,7 @@ package persistence
 import (
 	"database/sql"
 
-	"github.com/nepp-tumsat/documents-api/model"
+	"github.com/nepp-tumsat/documents-api/infrastructure/model"
 	"golang.org/x/xerrors"
 )
 

@@ -3,17 +3,18 @@ package persistence
 import (
 	"database/sql"
 
-	"github.com/nepp-tumsat/documents-api/model"
+	"github.com/nepp-tumsat/documents-api/infrastructure/model"
 	"golang.org/x/xerrors"
 )
 
 type AuthRepository interface {
-	InsertToUsers(string, string) error
-	InsertToUserAuths(string, string, string) error
-	InsertToAuthTokens(string, string, string) error
+	InsertUser(model.User) error
+	InsertUserAuth(model.UserAuth) error
+	InsertAuthToken(model.AuthToken) error
+	SelectUserByUserID(uint64) (*model.User, error)
+	SelectUserByUserName(string) (*model.User, error)
 	SelectUserAuthByEmail(string) (*model.UserAuth, error)
-	SelectUserNameByUserID(string) (string, error)
-	SelectUserIDByToken(string) (string, error)
+	SelectAuthTokenByToken(string) (*model.AuthToken, error)
 	DeleteAuthTokenByToken(string) error
 }
 
@@ -25,21 +26,20 @@ func NewAuthDB(db *sql.DB) AuthRepository {
 	return &authRepository{db: db}
 }
 
-func (a *authRepository) InsertToUsers(userID, userName string) error {
+func (a *authRepository) InsertUser(user model.User) error {
 	stmt, err := a.db.Prepare(`
 		INSERT INTO
 			users(
-			  id,
 			  username
 			)
-		VALUES(?,?);
+		VALUES(?);
 	`)
 	if err != nil {
 		err = xerrors.Errorf("Error in sql.DB: %v", err)
 		return err
 	}
 
-	_, err = stmt.Exec(userID, userName)
+	_, err = stmt.Exec(user.UserName)
 	if err != nil {
 		err = xerrors.Errorf("Error in sql.DB: %v", err)
 		return err
@@ -47,7 +47,7 @@ func (a *authRepository) InsertToUsers(userID, userName string) error {
 	return nil
 }
 
-func (a *authRepository) InsertToUserAuths(userID, email, hash string) error {
+func (a *authRepository) InsertUserAuth(userAuth model.UserAuth) error {
 	stmt, err := a.db.Prepare(`
 		INSERT INTO
 			user_auths(
@@ -62,7 +62,7 @@ func (a *authRepository) InsertToUserAuths(userID, email, hash string) error {
 		return err
 	}
 
-	_, err = stmt.Exec(userID, email, hash)
+	_, err = stmt.Exec(userAuth.UserID, userAuth.Email, userAuth.Hash)
 	if err != nil {
 		err = xerrors.Errorf("Error in sql.DB: %v", err)
 		return err
@@ -70,27 +70,65 @@ func (a *authRepository) InsertToUserAuths(userID, email, hash string) error {
 	return nil
 }
 
-func (a *authRepository) InsertToAuthTokens(authTokenID, userID, token string) error {
+func (a *authRepository) InsertAuthToken(authToken model.AuthToken) error {
 	stmt, err := a.db.Prepare(`
 		INSERT INTO
 			auth_tokens(
-			  id,
 			  user_id,
 				token
 			)
-		VALUES(?,?,?);
+		VALUES(?,?);
 	`)
 	if err != nil {
 		err = xerrors.Errorf("Error in sql.DB: %v", err)
 		return err
 	}
 
-	_, err = stmt.Exec(authTokenID, userID, token)
+	_, err = stmt.Exec(authToken.UserID, authToken.Token)
 	if err != nil {
 		err = xerrors.Errorf("Error in sql.DB: %v", err)
 		return err
 	}
 	return nil
+}
+
+func (a *authRepository) SelectUserByUserName(userName string) (*model.User, error) {
+	row := a.db.QueryRow(`
+		SELECT
+		  id,
+			username
+		FROM
+		  users
+		WHERE
+		  username=?;
+	`, userName)
+
+	var user model.User
+	err := row.Scan(&user.UserID, &user.UserName)
+	if err != nil {
+		err = xerrors.Errorf("Error in sql.DB: %v", err)
+		return nil, err
+	}
+	return &user, nil
+}
+
+func (a *authRepository) SelectUserByUserID(userID uint64) (*model.User, error) {
+	row := a.db.QueryRow(`
+		SELECT
+		  username
+		FROM
+		  users
+		WHERE
+		  id=?;
+	`, userID)
+
+	var user model.User
+	err := row.Scan(&user.UserName)
+	if err != nil {
+		err = xerrors.Errorf("Error in sql.DB: %v", err)
+		return nil, err
+	}
+	return &user, nil
 }
 
 func (a *authRepository) SelectUserAuthByEmail(email string) (*model.UserAuth, error) {
@@ -114,42 +152,24 @@ func (a *authRepository) SelectUserAuthByEmail(email string) (*model.UserAuth, e
 	return &userAuth, nil
 }
 
-func (a *authRepository) SelectUserNameByUserID(userID string) (string, error) {
+func (a *authRepository) SelectAuthTokenByToken(token string) (*model.AuthToken, error) {
 	row := a.db.QueryRow(`
 		SELECT
-		  username
-		FROM
-		  users
-		WHERE
-		  id=?;
-	`, userID)
-
-	var username string
-	err := row.Scan(&username)
-	if err != nil {
-		err = xerrors.Errorf("Error in sql.DB: %v", err)
-		return "", err
-	}
-	return username, nil
-}
-
-func (a *authRepository) SelectUserIDByToken(token string) (string, error) {
-	row := a.db.QueryRow(`
-		SELECT
-		  user_id
+		  user_id,
+			token
 		FROM
 		  auth_tokens
 		WHERE
 		  token=?;
 	`, token)
 
-	var userID string
-	err := row.Scan(&userID)
+	var authToken model.AuthToken
+	err := row.Scan(&authToken.UserID, &authToken.Token)
 	if err != nil {
 		err = xerrors.Errorf("Error in sql.DB: %v", err)
-		return "", err
+		return nil, err
 	}
-	return userID, nil
+	return &authToken, nil
 }
 
 func (a *authRepository) DeleteAuthTokenByToken(token string) error {
