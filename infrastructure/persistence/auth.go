@@ -9,7 +9,7 @@ import (
 
 type AuthRepository interface {
 	InsertUser(model.User) error
-	InsertToUserAuths(uint64, string, string) error
+	InsertUserAuth(model.UserAuth) error
 	InsertToAuthTokens(uint64, string) error
 	SelectUserIDByUserName(string) (uint64, error)
 	SelectUserAuthByEmail(string) (*model.UserAuth, error)
@@ -47,7 +47,7 @@ func (a *authRepository) InsertUser(user model.User) error {
 	return nil
 }
 
-func (a *authRepository) InsertToUserAuths(userID uint64, email, hash string) error {
+func (a *authRepository) InsertUserAuth(userAuth model.UserAuth) error {
 	stmt, err := a.db.Prepare(`
 		INSERT INTO
 			user_auths(
@@ -62,7 +62,7 @@ func (a *authRepository) InsertToUserAuths(userID uint64, email, hash string) er
 		return err
 	}
 
-	_, err = stmt.Exec(userID, email, hash)
+	_, err = stmt.Exec(userAuth.UserID, userAuth.Email, userAuth.Hash)
 	if err != nil {
 		err = xerrors.Errorf("Error in sql.DB: %v", err)
 		return err

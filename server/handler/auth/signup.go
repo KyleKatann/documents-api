@@ -47,7 +47,7 @@ func HandleAuthSignUp() http.HandlerFunc {
 			return
 		}
 
-		err = authRepo.InsertToUserAuths(userID, requestBody.Email, hash)
+		err = authRepo.InsertUserAuth(model.UserAuth{UserID: userID, Email: requestBody.Email, Hash: hash})
 		if err != nil {
 			log.Printf("%+v\n", xerrors.Errorf("Error in repository: %v", err))
 			return
