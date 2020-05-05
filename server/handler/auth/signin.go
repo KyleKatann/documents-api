@@ -7,7 +7,9 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/nepp-tumsat/documents-api/infrastructure"
+	"github.com/nepp-tumsat/documents-api/infrastructure/model"
 	"github.com/nepp-tumsat/documents-api/infrastructure/persistence"
+	authJson "github.com/nepp-tumsat/documents-api/server/json/auth"
 	"github.com/nepp-tumsat/documents-api/server/response"
 	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/xerrors"
@@ -16,7 +18,7 @@ import (
 func HandleAuthSignIn() http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
 
-		var requestBody authSignInRequest
+		var requestBody authJson.AuthSignInRequest
 		err := json.NewDecoder(request.Body).Decode(&requestBody)
 		if err != nil {
 			log.Printf("%+v\n", xerrors.Errorf("Error in json: %v", err))
@@ -45,33 +47,23 @@ func HandleAuthSignIn() http.HandlerFunc {
 			return
 		}
 
-		err = authRepo.InsertToAuthTokens(userAuth.UserID, token.String())
+		err = authRepo.InsertAuthToken(model.AuthToken{UserID: userAuth.UserID, Token: token.String()})
 		if err != nil {
 			log.Printf("%+v\n", xerrors.Errorf("Error in repository: %v", err))
 			return
 		}
 
-		userName, err := authRepo.SelectUserNameByUserID(userAuth.UserID)
+		user, err := authRepo.SelectUserByUserID(userAuth.UserID)
 		if err != nil {
 			log.Printf("%+v\n", xerrors.Errorf("Error in repository: %v", err))
 			return
 		}
 
-		response.Success(writer, authSignInResponse{UserName: userName, Token: token.String()})
+		response.Success(writer, authJson.AuthSignInResponse{UserName: user.UserName, Token: token.String()})
 	}
 
 }
 
 func passwordVerify(password, hash string) error {
 	return bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
-}
-
-type authSignInRequest struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
-}
-
-type authSignInResponse struct {
-	UserName string `json:"username"`
-	Token    string `json:"token"`
 }
