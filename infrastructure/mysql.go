@@ -8,7 +8,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-var RDB *sql.DB
+var DB *sql.DB
 
 func init() {
 	dbHost := "localhost"
@@ -19,7 +19,7 @@ func init() {
 	dataSourceName := fmt.Sprintf("%s:%s@tcp(%s)/%s", dbUser, dbPassword, dbHost, dbName)
 
 	var err error
-	RDB, err = sql.Open("mysql", dataSourceName)
+	DB, err = sql.Open("mysql", dataSourceName)
 
 	if err != nil {
 		log.Println("error")
