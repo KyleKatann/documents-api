@@ -69,7 +69,7 @@ func HandleAuthSignUp() http.HandlerFunc {
 			return
 		}
 
-		response.Success(writer, "")
+		response.Success(writer, authSignUpResponse{UserName: requestBody.UserName, Token: token.String()})
 	}
 }
 
@@ -83,4 +83,9 @@ type authSignUpRequest struct {
 	UserName string `json:"username"`
 	Email    string `json:"email"`
 	Password string `json:"password"`
+}
+
+type authSignUpResponse struct {
+	UserName string `json:"username"`
+	Token    string `json:"token"`
 }
