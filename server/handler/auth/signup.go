@@ -5,6 +5,8 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/google/uuid"
+
 	"github.com/nepp-tumsat/documents-api/infrastructure"
 	"github.com/nepp-tumsat/documents-api/infrastructure/persistence"
 	"github.com/nepp-tumsat/documents-api/server/response"
@@ -22,9 +24,17 @@ func HandleAuthSignUp() http.HandlerFunc {
 			return
 		}
 
+		userID, err := uuid.NewRandom()
+		if err != nil {
+			err = xerrors.Errorf("Error in uuid: %v", err)
+			return
+		}
+
 		authRepo := persistence.NewAuthDB(infrastructure.DB)
 
 		log.Println(authRepo)
+
+		err = authRepo.InsertToUsers(userID.String(), requestBody.UserName)
 
 		response.Success(writer, requestBody.Email)
 	}

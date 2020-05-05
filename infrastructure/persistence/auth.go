@@ -3,12 +3,11 @@ package persistence
 import (
 	"database/sql"
 
-	"github.com/nepp-tumsat/documents-api/model"
 	"golang.org/x/xerrors"
 )
 
 type AuthRepository interface {
-	SelectAll() ([]model.User, error)
+	InsertToUsers(string, string) error
 }
 
 type authRepository struct {
@@ -19,26 +18,24 @@ func NewAuthDB(db *sql.DB) AuthRepository {
 	return &authRepository{db: db}
 }
 
-func (a *authRepository) SelectAll() ([]model.User, error) {
-	rows, err := a.db.Query(`
-    SELECT username FROM users;
+func (a *authRepository) InsertToUsers(userID, userName string) error {
+	stmt, err := a.db.Prepare(`
+		INSERT INTO
+			users(
+			  id,
+			  username
+			)
+		VALUES(?,?);
 	`)
-
 	if err != nil {
 		err = xerrors.Errorf("Error in sql.DB: %v", err)
-		return nil, err
+		return err
 	}
 
-	var users []model.User
-	var user model.User
-	for rows.Next() {
-		err := rows.Scan(&user.UserName)
-		if err != nil {
-			err = xerrors.Errorf("Error in sql.DB: %v", err)
-			return nil, err
-		}
-		users = append(users, user)
+	_, err = stmt.Exec(userID, userName)
+	if err != nil {
+		err = xerrors.Errorf("Error in sql.DB: %v", err)
+		return err
 	}
-
-	return users, nil
+	return nil
 }
