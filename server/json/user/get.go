@@ -6,6 +6,6 @@ type UserGetResponse struct {
 	UserName string `json:"username"`
 }
 
-func toJsonUser(user model.User) *UserGetResponse {
-	return &UserGetResponse{UserName: user.UserName}
+func ToUserGetResponse(user model.User) UserGetResponse {
+	return UserGetResponse{UserName: user.UserName}
 }

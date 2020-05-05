@@ -6,11 +6,12 @@ type UserListResponse struct {
 	Users []UserGetResponse `json:"users"`
 }
 
-func toJsonUserList(users []model.User) []UserGetResponse {
-	var JsonUsers []UserGetResponse
+func ToUserListResponse(users []model.User) UserListResponse {
+	var jsonUsers []UserGetResponse
+	var jsonUser UserGetResponse
 	for _, user := range users {
-		user = toJsonUser(user)
-		users = append(users, user)
+		jsonUser = ToUserGetResponse(user)
+		jsonUsers = append(jsonUsers, jsonUser)
 	}
-	return UserListResponse{Users: JsonUsers}
+	return UserListResponse{Users: jsonUsers}
 }

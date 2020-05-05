@@ -5,6 +5,7 @@ import (
 
 	"github.com/nepp-tumsat/documents-api/infrastructure"
 	"github.com/nepp-tumsat/documents-api/infrastructure/persistence"
+	userJson "github.com/nepp-tumsat/documents-api/server/json/user"
 	"github.com/nepp-tumsat/documents-api/server/response"
 	"golang.org/x/xerrors"
 )
@@ -19,6 +20,6 @@ func HandleUserList() http.HandlerFunc {
 			err = xerrors.Errorf("Error in repository: %v", err)
 		}
 
-		response.Success(writer, userJson.toJsonUserList(users))
+		response.Success(writer, userJson.ToUserListResponse(users))
 	}
 }

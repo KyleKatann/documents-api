@@ -9,7 +9,7 @@ import (
 
 	"github.com/nepp-tumsat/documents-api/infrastructure"
 	"github.com/nepp-tumsat/documents-api/infrastructure/persistence"
-	authJson "github.com/nepp-tumsat/documents-api/server/json"
+	authJson "github.com/nepp-tumsat/documents-api/server/json/auth"
 	"github.com/nepp-tumsat/documents-api/server/response"
 	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/xerrors"
